@@ -32,9 +32,9 @@ class DelayReportController extends Controller
 
         if ($order->trip?->isOngoing())
         {
-            // $response = Http::get(env('CALC_NEW_DELIVERY_URL'));
+            $response = Http::get(env('CALC_NEW_DELIVERY_URL'));
 
-            $order->delivery_time = Carbon::now()->addMinutes(random_int(1, 50));
+            $order->delivery_time = Carbon::now()->addMinutes($response['new_delivery_time']);
             $order->save();
             
             $delayReport->state = 'new_delivery_time';
