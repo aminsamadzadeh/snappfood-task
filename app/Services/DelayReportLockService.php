@@ -3,17 +3,23 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Redis;
+use App\Models\DelayReport;
 
 class DelayReportLockService
 {
     protected static $lockTimeout = 5;
     protected static $lockKey = 'delayReport:lock';
+    protected $delayReport;
 
-    public static function lock($delay_report_id)
+    public function __construct(DelayReport $delayReport) {
+        $this->delayReport = $delayReport;
+    }
+
+    public function lock()
     {
-        $lockKey = self::$lockKey . $delay_report_id;
+        $lockKey = self::$lockKey . $this->delayReport->id;
 
-        $lock = Redis::set($lockKey, $delay_report_id, 'EX', self::$lockTimeout, 'NX');
+        $lock = Redis::set($lockKey, $this->delayReport->id, 'EX', self::$lockTimeout, 'NX');
 
         if ($lock) {
             return true;
@@ -22,9 +28,9 @@ class DelayReportLockService
         return false;
     }
 
-    public static function releaseLock($delay_report_id)
+    public function releaseLock()
     {
-        $lockKey = self::$lockKey . $delay_report_id;
+        $lockKey = self::$lockKey . $this->delayReport->id;
         Redis::del($lockKey);
     }
 }

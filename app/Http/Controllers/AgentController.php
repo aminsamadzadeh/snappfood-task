@@ -24,7 +24,7 @@ class AgentController extends Controller
             return response()->json(['message'=> 'delay report not found'], 404);
         }
 
-        if (!DelayReportLockService::lock($latestOpenDelayReport->id)) 
+        if (!(new DelayReportLockService($latestOpenDelayReport))->lock())
         {
             return response()->json(['message' => 'somthing went wrong'], 409);
         }
